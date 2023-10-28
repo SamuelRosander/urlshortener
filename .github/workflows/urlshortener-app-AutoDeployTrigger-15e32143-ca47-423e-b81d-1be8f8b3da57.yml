@@ -1,0 +1,42 @@
+name: Trigger auto deployment for urlshortener-app
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ master ]
+    paths:
+    - '**'
+    - '.github/workflows/urlshortener-app-AutoDeployTrigger-15e32143-ca47-423e-b81d-1be8f8b3da57.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:
+      
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.URLSHORTENERAPP_AZURE_CREDENTIALS }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }} 
+          registryUrl: srosander.azurecr.io
+          registryUsername: ${{ secrets.URLSHORTENERAPP_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.URLSHORTENERAPP_REGISTRY_PASSWORD }}
+          containerAppName: urlshortener-app
+          resourceGroup: URLShortener-RG
+          imageToBuild: srosander.azurecr.io/urlshortener-app:${{ github.sha }}
+          
+
+     
+

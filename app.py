@@ -26,9 +26,9 @@ def add():
         
         while (True):
             short_url = ''.join(random.choice(chars) for i in range(3))
-            test_duplicate = Link.query.filter_by(short_url=short_url)
+            link_exists = Link.query.filter_by(short_url=short_url).first()
 
-            if test_duplicate:
+            if not link_exists:
                 break
 
         link = Link(long_url=form.long_url.data, short_url=short_url)

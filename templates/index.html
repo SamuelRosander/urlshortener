@@ -15,7 +15,7 @@
             </form>
             {% for link in links %}
             <div class="long_url-label">{{ link.long_url }}</div>
-            <div class="short_url-label">/<a href="{{ link.long_url }}" target="_blank">{{ link.short_url }}</a></div>
+            <div class="short_url-label">/<a href="/{{ link.short_url }}" target="_blank">{{ link.short_url }}</a></div>
             {% endfor %}
         </div>
 	</body>

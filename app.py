@@ -14,7 +14,7 @@ db = SQLAlchemy(app)
 @app.route("/")
 def index():
     form = LinkForm()
-    links = Link.query.all()
+    links = Link.query.order_by(Link.link_id.desc()).all()
     return render_template("index.html", form=form, links=links)
 
 

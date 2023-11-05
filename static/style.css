@@ -1,0 +1,56 @@
+body {
+    background-color: #333;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.container {
+    width: 500px;
+    margin: 0 auto;
+    display: flexbox;
+    justify-content: center;
+}
+.long_url-form {
+    background-color: #222;
+    width: 380px;
+    height: 50px;
+    border-radius: 10px 0px 0px 10px;
+    border: 0;
+    float: left;
+    margin: 50px 0;
+    padding: 0 20px;
+    color: #fff;
+}
+.long_url-form:focus {
+    outline: none;
+}
+.submit-button {
+    background-color: #222;
+    width: 60px;
+    height: 50px;
+    border-radius: 0px 10px 10px 0px;
+    border: 0;
+    float: left;
+    margin: 50px 3px;
+    padding: 0;
+    color: #fff;
+}
+.long_url-label {
+    float: left;
+    clear: left;
+    width: 300px;
+    color: #999;
+    margin: 0 10px 30px 10px;
+}
+.long_url-label ~ .long_url-label {
+    color: #666;
+    margin: 0 10px;
+}
+.short_url-label {
+    float:left;
+    width: 50px;
+    color: #888;
+}
+.short_url-label a {
+    text-decoration: none;
+    color: #ddd;
+}

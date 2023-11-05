@@ -5,6 +5,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 import random
 import string
+from os import environ
 
 app = Flask(__name__)
 app.config.from_pyfile("config.py")
@@ -62,4 +63,4 @@ class LinkForm(FlaskForm):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host=environ.get("HOST", "localhost"))

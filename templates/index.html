@@ -1,22 +1,10 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta charset="utf-8">
-        <title>URL Shortener</title>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-    </head>
-    <body>
-        <div class="container">
-            <form method="POST" action="{{ url_for('add') }}">
-                {{ form.hidden_tag() }}
-                {{ form.long_url(class="long_url-form", placeholder="Enter your URL...") }}
-                {{ form.submit(class="submit-button") }}
-            </form>
-            {% for link in links %}
-            <div class="long_url-label">{{ link.long_url }}</div>
-            <div class="short_url-label">/<a href="/{{ link.short_url }}" target="_blank">{{ link.short_url }}</a></div>
-            {% endfor %}
-        </div>
-    </body>
-</html>
+{% extends "layout.html" %}
+{% block body %}
+
+{% for link in links %}
+
+<!-- When autenticated all user links will be shown here -->
+
+{% endfor %}
+
+{% endblock %}

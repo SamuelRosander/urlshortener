@@ -3,54 +3,81 @@ body {
     color: #fff;
     font-family: Arial, Helvetica, sans-serif;
 }
-.container {
-    width: 500px;
+.main-container {
+    max-width: 500px;
     margin: 0 auto;
-    display: flexbox;
     justify-content: center;
+    padding: 0;
+}
+.new-link-container {
+    background-color: #222;
+    border-radius: 10px;
+    height: 50px;
+    padding: 0;
+    margin: 50px 0;
+    display: flexbox;
 }
 .long_url-form {
     background-color: #222;
-    width: 380px;
+    width: 390px;
     height: 50px;
-    border-radius: 10px 0px 0px 10px;
     border: 0;
+    border-radius: 10px 0 0 10px;
     float: left;
-    margin: 50px 0;
+    margin: 0;
     padding: 0 20px;
     color: #fff;
 }
 .long_url-form:focus {
     outline: none;
 }
-.submit-button {
+input[type=submit], button {
     background-color: #222;
-    width: 60px;
+    width: 70px;
     height: 50px;
-    border-radius: 0px 10px 10px 0px;
     border: 0;
-    float: left;
-    margin: 50px 3px;
+    border-left: 1px solid #333;
+    border-radius: 0 10px 10px 0;
+    float: right;
+    margin: 0;
     padding: 0;
     color: #fff;
+    cursor: pointer;
+    transition: background-color 0.5s;
 }
+input[type=submit]:active, button:active {
+    background-color: #aaa;
+    transition: none;
+}
+
+
 .long_url-label {
-    float: left;
     clear: left;
-    width: 300px;
+    width: 480px;
     color: #999;
-    margin: 0 10px 30px 10px;
+    margin: 0 10px 0 10px;
     white-space: nowrap;
     overflow: hidden;
+    font-size: 0.8em;
 }
-.long_url-label ~ .long_url-label {
-    color: #666;
-    margin: 0 10px;
+.short_url-container {
+    background-color: #222;
+    border-radius: 10px;
+    height: 50px;
+    padding: 0;
+    margin: 0 0 30px 0;
+    display: flexbox;
 }
 .short_url-label {
-    float:left;
-    width: 50px;
-    color: #888;
+    width: 390px;
+    height: 50px;
+    border: 0;
+    border-radius: 10px 0 0 10px;
+    float: left;
+    margin: 0;
+    padding: 0 20px;
+    color: #fff;
+    line-height: 50px;
 }
 .short_url-label a {
     text-decoration: none;

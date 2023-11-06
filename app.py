@@ -1,7 +1,8 @@
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import SubmitField
+from wtforms.fields import URLField
 from wtforms.validators import DataRequired
 import random
 import string
@@ -35,7 +36,14 @@ def add():
         link = Link(long_url=form.long_url.data, short_url=short_url)
         db.session.add(link)
         db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('stats', short_url=short_url))
+
+
+@app.route("/stats/<short_url>")
+def stats(short_url):
+    form =LinkForm()
+    link = Link.query.filter_by(short_url=short_url).first()
+    return render_template("stats.html", form=form, link=link)
 
 
 @app.route("/<short_url>")
@@ -58,7 +66,7 @@ class Link(db.Model):
 
 
 class LinkForm(FlaskForm):
-    long_url = StringField("Long URL", validators=[DataRequired()])
+    long_url = URLField("Long URL", validators=[DataRequired()])
     submit = SubmitField("Shorten")
 
 

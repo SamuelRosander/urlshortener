@@ -12,6 +12,8 @@ A simple project to shorten user URLs
 
 - SECRET_KEY
 - DATABASE_URI
+- GOOGLE_CLIENT_ID
+- GOOGLE_CLIENT_SECRET
 - HOST (optional)
 
 ---

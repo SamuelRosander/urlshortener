@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<div class="long_url-label" title="{{ link.long_url }}">{{ link.long_url }}</div>
+<div class="short_url-container">
+    <div class="short_url-label" id="short_url-{{ link.id }}">
+        <a href="{{ url_for('redirect_url', short_url=link.short_url) }}" target="_blank">{{ request.host_url + link.short_url }}</a>
+    </div>
+    <button onClick="copyURL({{ link.id }})">Copy</button>
+    <span class="label-clicks">This link has been used {{ link.no_of_clicks }} {{ "time" if link.no_of_clicks == 1 else "times" }}</span>
+</div>
+
+{% endblock %}

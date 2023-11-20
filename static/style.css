@@ -3,11 +3,29 @@ body {
     color: #fff;
     font-family: Arial, Helvetica, sans-serif;
 }
+a {
+    color: #fff;
+    text-decoration: none;
+}
 .main-container {
     max-width: 500px;
     margin: 0 auto;
     justify-content: center;
     padding: 0;
+}
+.banner-link {
+    display: block;
+    text-align: center;
+    padding-top: 30px;
+}
+.flash {
+    background: #444;
+    border: 1px solid #888;
+    border-radius: 5px;
+    padding: 5px;
+}
+.header-error {
+    text-align: center;
 }
 .new-link-container {
     background-color: #222;
@@ -45,6 +63,10 @@ input[type=submit], button {
     cursor: pointer;
     transition: background-color 0.5s;
 }
+input[type=submit]:hover, button:hover {
+    background-color: #282828;
+}
+
 input[type=submit]:active, button:active {
     background-color: #aaa;
     transition: none;
@@ -82,4 +104,16 @@ input[type=submit]:active, button:active {
 .short_url-label a {
     text-decoration: none;
     color: #ddd;
+}
+.label-clicks {
+    float:right;
+    color: #999;
+    margin: 0 10px 0 10px;
+    font-size: 0.8em;
+    position:relative;
+    top: 2px;
+}
+footer {
+    margin-top: 50px;
+    text-align: center;
 }

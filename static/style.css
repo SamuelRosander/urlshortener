@@ -18,6 +18,12 @@ a {
     text-align: center;
     padding-top: 30px;
 }
+.flash {
+    background: #444;
+    border: 1px solid #888;
+    border-radius: 5px;
+    padding: 5px;
+}
 .header-error {
     text-align: center;
 }

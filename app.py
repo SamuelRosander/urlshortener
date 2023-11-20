@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request, current_app, abort, session
+from flask import Flask, render_template, url_for, redirect, request, current_app, abort, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
@@ -120,9 +120,12 @@ def oauth2_callback(provider):
         abort(404)
 
     if 'error' in request.args:
+        for k, v in request.args.items():
+            if k.startswith('error'):
+                flash(f'{k}: {v}')
         return redirect(url_for('index'))
 
-    if request.args['state'] != session.get('oauth2_state'):
+    if request.args['state'] != session.get('oauth2_state') or request.args['state'] == None:
         abort(401)
 
     if 'code' not in request.args:
@@ -137,7 +140,7 @@ def oauth2_callback(provider):
                                 _external=True),
     }, headers={'Accept': 'application/json'})
     
-    if response.status_code != 200:
+    if response.status_code >= 300:
         abort(401)
 
     oauth2_token = response.json().get('access_token')
@@ -149,10 +152,11 @@ def oauth2_callback(provider):
         'Accept': 'application/json',
     })
 
-    if response.status_code != 200:
+    if response.status_code >= 300:
         abort(401)
 
-    email = provider_data['userinfo']['email'](response.json())
+    email_extractor = provider_data['userinfo']['email']
+    email = email_extractor(response.json())
 
     user = User.query.filter_by(email=email).first()
     if user is None:

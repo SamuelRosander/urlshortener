@@ -6,8 +6,8 @@
         <title>URL Shortener</title>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
         <script>
-            function copyURL(short_id) {
-                var copyText = document.getElementById("short_url-" + short_id);
+            function copyURL(short_url) {
+                var copyText = document.getElementById("short_url-" + short_url);
                 navigator.clipboard.writeText(copyText.innerText);
             }
         </script>
@@ -15,6 +15,15 @@
     <body>
         <div class="main-container">
             <h1><a href="{{ url_for('index') }}" class="banner-link">URL shortener</a></h1>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="flash">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
             <div class="new-link-container">
                 <form method="POST" action="{{ url_for('add') }}">
                     {{ form.hidden_tag() }}

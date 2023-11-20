@@ -71,6 +71,8 @@ input[type=submit]:active, button:active {
     background-color: #aaa;
     transition: none;
 }
+
+
 .long_url-label {
     clear: left;
     width: 480px;

@@ -14,7 +14,7 @@
     </head>
     <body>
         <div class="main-container">
-            <h1><a href="{{ url_for('short.index') }}" class="banner-link">URL shortener</a></h1>
+            <h1><a href="{{ url_for('short.index', _external=True) }}" class="banner-link">URL shortener</a></h1>
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
                     {% for message in messages %}

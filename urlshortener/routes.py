@@ -27,15 +27,18 @@ def index():
 @short.route("/add", methods=["POST"])
 def add():
     form = LinkForm()
+    short_url = request.values.get("short_url") # used for testing
+
     if form.validate_on_submit():
         chars = string.digits + string.ascii_letters
         
-        while (True):
-            short_url = ''.join(random.choice(chars) for i in range(3))
-            link_exists = Link.query.filter_by(short_url=short_url).first()
+        if not short_url:
+            while (True):
+                short_url = ''.join(random.choice(chars) for i in range(3))
+                link_exists = Link.query.filter_by(short_url=short_url).first()
 
-            if not link_exists:
-                break
+                if not link_exists:
+                    break
 
         if (current_user.is_authenticated):
             link = Link(long_url=form.long_url.data, short_url=short_url, user_id = current_user.id)
@@ -74,7 +77,8 @@ def redirect_url(short_url):
         db.session.commit()
         return redirect(link.long_url)
     else:
-        return redirect(url_for("short.index"))
+        error_message = f"No URL was found for /{short_url}"
+        return render_template("error.html", error_header="404 - not found", error_message=error_message), 404
 
 
 @short.route('/logout')
@@ -166,9 +170,9 @@ def oauth2_callback(provider):
 
 @short.errorhandler(401)
 def error_401(error):
-    return render_template("error.html", error="401 Unauthorized"), 401
+    return render_template("error.html", error_header="401 - Unauthorized"), 401
 
 
 @short.errorhandler(404)
 def error_404(error):
-    return render_template("error.html", error="404 Not found"), 404
+    return render_template("error.html", error_header="404 - Not found"), 404

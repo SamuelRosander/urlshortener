@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, url_for, redirect, request, current_app, abort, session, flash
-from flask_login import current_user, logout_user, login_user
+from flask_login import current_user, logout_user, login_user, login_required
 import random
 import string
 import secrets
@@ -80,6 +80,22 @@ def redirect_url(short_url):
         error_message = f"No URL was found for /{short_url}"
         return render_template("error.html", error_header="404 - not found", error_message=error_message), 404
 
+@short.route("/delete/<short_url>")
+@login_required
+def delete_link(short_url):
+    link = Link.query.filter_by(short_url=short_url).first()
+
+    if not link:
+        abort(404)
+
+    if link.owner != current_user:
+        abort(401)
+
+    db.session.delete(link)
+    db.session.commit()
+
+    flash("Link has been deleted.")
+    return redirect(url_for("short.index"))
 
 @short.route('/logout')
 def logout():

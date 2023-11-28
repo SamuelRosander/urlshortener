@@ -71,10 +71,9 @@ input[type=submit]:hover, button:hover {
     background-color: #111;
     color: #f7b;
 }
-
 input[type=submit]:active, button:active {
-    background-color: #f7b;;
-    color: #111;
+    background-color: #d59;;
+    color: #f7b;
     transition: none;
 }
 .link-delete {

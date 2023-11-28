@@ -1,6 +1,6 @@
 from flask import Flask
 from .extensions import db, login_manager
-from .routes import short
+from .routes import create_routes
 
 def create_app(config_file="config.py"):
     app = Flask(__name__)
@@ -8,7 +8,6 @@ def create_app(config_file="config.py"):
 
     db.init_app(app)
     login_manager.init_app(app)
-
-    app.register_blueprint(short)
+    create_routes(app)
 
     return app

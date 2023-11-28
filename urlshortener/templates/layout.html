@@ -14,7 +14,7 @@
     </head>
     <body>
         <div class="main-container">
-            <h1><a href="{{ url_for('short.index', _external=True) }}" class="banner-link">URL shortener</a></h1>
+            <h1><a href="{{ url_for('index', _external=True) }}" class="banner-link">URL shortener</a></h1>
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
                     {% for message in messages %}
@@ -25,7 +25,7 @@
                 {% endif %}
             {% endwith %}
             <div class="new-link-container">
-                <form method="POST" action="{{ url_for('short.add') }}">
+                <form method="POST" action="{{ url_for('add') }}">
                     {{ form.hidden_tag() }}
                     {{ form.long_url(class="long_url-form", placeholder="Enter your URL...") }}
                     {{ form.submit(class="submit-button") }}
@@ -37,9 +37,9 @@
             <footer>
                 {% if current_user.is_authenticated %}
                     Signed in as {{ current_user.email }}<br />
-                    <a href="{{ url_for('short.logout') }}">Sign out</a>
+                    <a href="{{ url_for('logout') }}">Sign out</a>
                 {% else %}
-                    <a href="{{ url_for('short.oauth2_authorize', provider='google') }}">Sign in with Google</a>
+                    <a href="{{ url_for('oauth2_authorize', provider='google') }}">Sign in with Google</a>
                 {% endif %}
             </footer>
         </div>

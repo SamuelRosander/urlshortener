@@ -11,7 +11,8 @@
         <div class="main-container">
             <h1><a href="{{ url_for('index') }}" class="banner-link">URL shortener</a></h1>
 
-            <h2 class="header-error">{{ error }}</h2>
+            <h2 class="header-error">{{ error_header }}</h2>
+            {{ error_message }}
 
         </div>
     </body>

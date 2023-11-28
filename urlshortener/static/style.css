@@ -7,6 +7,9 @@ a {
     color: #fff;
     text-decoration: none;
 }
+a:hover {
+    color: #f7b;
+}
 .main-container {
     max-width: 500px;
     margin: 0 auto;
@@ -17,12 +20,13 @@ a {
     display: block;
     text-align: center;
     padding-top: 30px;
+    color: #f7b;
 }
 .flash {
     background: #444;
     border: 1px solid #888;
     border-radius: 5px;
-    padding: 5px;
+    padding: 10px;
 }
 .header-error {
     text-align: center;
@@ -64,17 +68,20 @@ input[type=submit], button {
     transition: background-color 0.5s;
 }
 input[type=submit]:hover, button:hover {
-    background-color: #282828;
+    background-color: #111;
+    color: #f7b;
 }
-
 input[type=submit]:active, button:active {
-    background-color: #aaa;
+    background-color: #d59;;
+    color: #f7b;
     transition: none;
 }
-
-
+.link-delete {
+    font-size: 0.8em;
+    margin-left: 10px;
+    color: #999;
+}
 .long_url-label {
-    clear: left;
     width: 480px;
     color: #999;
     margin: 0 10px 0 10px;
@@ -87,7 +94,7 @@ input[type=submit]:active, button:active {
     border-radius: 10px;
     height: 50px;
     padding: 0;
-    margin: 0 0 30px 0;
+    margin: 0 0 50px 0;
     display: flexbox;
 }
 .short_url-label {
@@ -100,6 +107,7 @@ input[type=submit]:active, button:active {
     padding: 0 20px;
     color: #fff;
     line-height: 50px;
+    overflow: hidden;
 }
 .short_url-label a {
     text-decoration: none;
@@ -115,5 +123,6 @@ input[type=submit]:active, button:active {
 }
 footer {
     margin-top: 50px;
+    margin-bottom: 50px;
     text-align: center;
 }

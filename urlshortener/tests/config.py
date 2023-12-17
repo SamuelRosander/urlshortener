@@ -8,8 +8,8 @@ OAUTH2_PROVIDERS = {
     # Google OAuth 2.0 documentation:
     # https://developers.google.com/identity/protocols/oauth2/web-server#httprest
     'google': {
-        'client_id': environ['GOOGLE_CLIENT_ID'],
-        'client_secret': environ['GOOGLE_CLIENT_SECRET'],
+        'client_id': environ.get('GOOGLE_CLIENT_ID'),
+        'client_secret': environ.get('GOOGLE_CLIENT_SECRET'),
         'authorize_url': 'https://accounts.google.com/o/oauth2/auth',
         'token_url': 'https://accounts.google.com/o/oauth2/token',
         'userinfo': {

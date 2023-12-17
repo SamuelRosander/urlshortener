@@ -1,4 +1,4 @@
-name: Python Test
+name: Python Lint
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - workflows
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +24,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run pytest
+    - name: Run flake8 linting
       run: |
-        pytest
+        flake8

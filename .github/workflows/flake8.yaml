@@ -13,6 +13,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -24,6 +27,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run flake8 linting
+    - name: Run flake8 lint
       run: |
         flake8

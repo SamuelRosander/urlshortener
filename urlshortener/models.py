@@ -37,5 +37,5 @@ class Link(db.Model):
 
         if link:
             self.generate_short_url()
-        
+
         return short_url

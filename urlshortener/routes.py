@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, url_for, redirect, request, current_app, abort, session, flash
+from flask import render_template, url_for, redirect, request, current_app, \
+    abort, session, flash
 from flask_login import current_user, logout_user, login_user, login_required
 import secrets
 from urllib.parse import urlencode
@@ -8,17 +9,17 @@ from .models import User, Link
 from .extensions import db
 
 
-def create_routes(app):            
+def create_routes(app):
     @app.route("/")
     def index():
         form = LinkForm()
         if current_user.is_authenticated:
-            links = Link.query.filter_by(user_id=current_user.id).order_by(Link.id.desc())
+            links = Link.query.filter_by(user_id=current_user.id) \
+                                        .order_by(Link.id.desc())
         else:
             links = None
 
         return render_template("index.html", form=form, links=links)
-
 
     @app.route("/add", methods=["POST"])
     def add():
@@ -26,7 +27,8 @@ def create_routes(app):
 
         if form.validate_on_submit():
             if (current_user.is_authenticated):
-                link = Link(long_url=form.long_url.data, user_id = current_user.id)
+                link = Link(long_url=form.long_url.data,
+                            user_id=current_user.id)
             else:
                 link = Link(long_url=form.long_url.data)
 
@@ -35,23 +37,21 @@ def create_routes(app):
 
         if current_user.is_authenticated:
             return redirect(url_for('index')), 303
-        
-        return redirect(url_for('info', short_url=link.short_url)), 303
 
+        return redirect(url_for('info', short_url=link.short_url)), 303
 
     @app.route("/<short_url>/info")
     def info(short_url):
         link = Link.query.filter_by(short_url=short_url).first()
 
-        if link == None:
+        if link is None:
             abort(404)
         elif link.owner and link.owner != current_user:
             abort(401)
 
-        form =LinkForm()
+        form = LinkForm()
 
         return render_template("info.html", form=form, link=link)
-
 
     @app.route("/<short_url>")
     def redirect_url(short_url):
@@ -63,7 +63,9 @@ def create_routes(app):
             return redirect(link.long_url), 303
         else:
             error_message = f"No URL was found for /{short_url}"
-            return render_template("error.html", error_header="404 - not found", error_message=error_message), 404
+            return render_template("error.html",
+                                   error_header="404 - not found",
+                                   error_message=error_message), 404
 
     @app.route("/delete/<short_url>")
     @login_required
@@ -87,7 +89,6 @@ def create_routes(app):
         logout_user()
         return redirect(url_for('index')), 303
 
-
     @app.route("/authorize/<provider>")
     def oauth2_authorize(provider):
         if current_user.is_authenticated:
@@ -110,7 +111,6 @@ def create_routes(app):
 
         return redirect(provider_data['authorize_url'] + '?' + qs), 303
 
-
     @app.route('/callback/<provider>')
     def oauth2_callback(provider):
         if current_user.is_authenticated:
@@ -126,7 +126,8 @@ def create_routes(app):
                     flash(f'{k}: {v}')
             return redirect(url_for('index')), 303
 
-        if request.args['state'] != session.get('oauth2_state') or request.args['state'] == None:
+        if request.args['state'] != session.get('oauth2_state') \
+                or request.args['state'] is None:
             abort(401)
 
         if 'code' not in request.args:
@@ -140,7 +141,7 @@ def create_routes(app):
             'redirect_uri': url_for('oauth2_callback', provider=provider,
                                     _external=True),
         }, headers={'Accept': 'application/json'})
-        
+
         if response.status_code >= 300:
             abort(401)
 
@@ -168,12 +169,12 @@ def create_routes(app):
         login_user(user)
         return redirect(url_for('index')), 303
 
-
     @app.errorhandler(401)
     def error_401(error):
-        return render_template("error.html", error_header="401 - Unauthorized"), 401
-
+        return render_template("error.html",
+                               error_header="401 - Unauthorized"), 401
 
     @app.errorhandler(404)
     def error_404(error):
-        return render_template("error.html", error_header="404 - Not found"), 404
+        return render_template("error.html",
+                               error_header="404 - Not found"), 404

@@ -5,8 +5,10 @@ import secrets
 from urllib.parse import urlencode
 import requests
 from .forms import LinkForm
-from .models import User, Link
-from .extensions import db
+from .models import User
+from .extensions import cosmos_db, db, generate_short_url
+import azure.cosmos.exceptions as exceptions
+from datetime import datetime
 
 
 def create_routes(app):
@@ -14,8 +16,13 @@ def create_routes(app):
     def index():
         form = LinkForm()
         if current_user.is_authenticated:
-            links = Link.query.filter_by(user_id=current_user.id) \
-                                        .order_by(Link.id.desc())
+            links = list(cosmos_db["links"].read_all_items())
+            # links = list(cosmos_db["links"].query_items(
+            #     query="SELECT * FROM r WHERE r.user_id=@user_id",
+            #     parameters=[
+            #         {"name": "@user_id", "value": current_user.id}
+            #     ]
+            # ))
         else:
             links = None
 
@@ -26,27 +33,32 @@ def create_routes(app):
         form = LinkForm()
 
         if form.validate_on_submit():
-            if (current_user.is_authenticated):
-                link = Link(long_url=form.long_url.data,
-                            user_id=current_user.id)
-            else:
-                link = Link(long_url=form.long_url.data)
 
-            db.session.add(link)
-            db.session.commit()
+            short_url = generate_short_url()
+            link = {"id": short_url, "long_url": form.long_url.data,
+                    "partitionKey": 1, "nr_of_clicks": 0,
+                    "timestamp": str(datetime.now)}
+
+            if current_user.is_authenticated:
+                link["user_id"] = current_user.id
+
+            cosmos_db["links"].create_item(body=link)
 
         if current_user.is_authenticated:
             return redirect(url_for('index')), 303
 
-        return redirect(url_for('info', short_url=link.short_url)), 303
+        return redirect(url_for('info', short_url=short_url)), 303
 
     @app.route("/<short_url>/info")
     def info(short_url):
-        link = Link.query.filter_by(short_url=short_url).first()
-
-        if link is None:
+        try:
+            link = cosmos_db["links"].read_item(
+                item=short_url, partition_key=1)
+        except exceptions.CosmosResourceNotFoundError:
             abort(404)
-        elif link.owner and link.owner != current_user:
+
+        if link.get("user_id") and \
+                link.get("user_id") != current_user.get_id():
             abort(401)
 
         form = LinkForm()
@@ -55,13 +67,13 @@ def create_routes(app):
 
     @app.route("/<short_url>")
     def redirect_url(short_url):
-        link = Link.query.filter_by(short_url=short_url).first()
-
-        if link:
-            link.no_of_clicks += 1
-            db.session.commit()
-            return redirect(link.long_url), 303
-        else:
+        try:
+            link = cosmos_db["links"].read_item(
+                item=short_url, partition_key=1)
+            link["nr_of_clicks"] += 1
+            cosmos_db["links"].upsert_item(body=link)
+            return redirect(link["long_url"]), 303
+        except exceptions.CosmosResourceNotFoundError:
             error_message = f"No URL was found for /{short_url}"
             return render_template("error.html",
                                    error_header="404 - not found",
@@ -70,16 +82,16 @@ def create_routes(app):
     @app.route("/delete/<short_url>")
     @login_required
     def delete_link(short_url):
-        link = Link.query.filter_by(short_url=short_url).first()
-
-        if not link:
+        try:
+            link = cosmos_db["links"].read_item(
+                item=short_url, partition_key=1)
+        except exceptions.CosmosResourceNotFoundError:
             abort(401)
 
-        if link.owner != current_user:
+        if link.get("user_id") != current_user.get_id():
             abort(401)
 
-        db.session.delete(link)
-        db.session.commit()
+        cosmos_db["links"].delete_item(item=short_url, partition_key=1)
 
         flash("Link has been deleted.")
         return redirect(url_for("index")), 303

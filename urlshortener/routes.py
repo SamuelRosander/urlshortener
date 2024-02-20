@@ -1,12 +1,10 @@
 from flask import render_template, url_for, redirect, request, current_app, \
     abort, session, flash
-from flask_login import current_user, logout_user, login_user, login_required
 import secrets
 from urllib.parse import urlencode
 import requests
 from .forms import LinkForm
-from .models import User
-from .extensions import mongo, db, generate_short_url
+from .extensions import mongo, generate_short_url, login_required
 from datetime import datetime
 
 
@@ -15,8 +13,8 @@ def create_routes(app):
     def index():
         form = LinkForm()
 
-        if current_user.is_authenticated:
-            links = mongo.db.links.find({"user": current_user.email})
+        if session.get("user"):
+            links = mongo.db.links.find({"user": session["user"]})
         else:
             links = None
 
@@ -28,15 +26,16 @@ def create_routes(app):
 
         if form.validate_on_submit():
             short_url = generate_short_url()
-            link = {"short_url": short_url, "long_url": form.long_url.data,
-                    "nr_of_clicks": 0, "timestamp": str(datetime.now())}
+            link = {
+                "short_url": short_url, "long_url": form.long_url.data,
+                "timestamp": str(datetime.now())}
 
-            if current_user.is_authenticated:
-                link["user"] = current_user.email
+            if session.get("user"):
+                link["user"] = session["user"]
 
             mongo.db.links.insert_one(link)
 
-        if current_user.is_authenticated:
+        if session.get("user"):
             return redirect(url_for('index')), 303
 
         return redirect(url_for('info', short_url=short_url)), 303
@@ -45,8 +44,7 @@ def create_routes(app):
     def info(short_url):
         link = mongo.db.links.find_one_or_404({"short_url": short_url})
 
-        if link.get("user") and (current_user.is_anonymous or link.get("user")
-                                 != current_user.email):
+        if link.get("user") and session.get("user") != link["user"]:
             abort(401)
 
         form = LinkForm()
@@ -57,6 +55,10 @@ def create_routes(app):
     def redirect_url(short_url):
         link = mongo.db.links.find_one_or_404({"short_url": short_url})
 
+        mongo.db.links.update_one(
+            {"_id": link["_id"]},
+            {"$set": {"nr_of_clicks": link.get("nr_of_clicks") or 0 + 1}})
+
         return redirect(link["long_url"]), 303
 
     @app.route("/delete/<short_url>")
@@ -64,7 +66,7 @@ def create_routes(app):
     def delete_link(short_url):
         link = mongo.db.links.find_one_or_404({"short_url": short_url})
 
-        if link.get("user") != current_user.email:
+        if link.get("user") != session["user"]:
             abort(401)
 
         mongo.db.links.delete_one(link)
@@ -74,12 +76,12 @@ def create_routes(app):
 
     @app.route('/logout')
     def logout():
-        logout_user()
+        session.clear()
         return redirect(url_for('index')), 303
 
     @app.route("/authorize/<provider>")
     def oauth2_authorize(provider):
-        if current_user.is_authenticated:
+        if session.get("user"):
             return redirect(url_for('index')), 303
 
         provider_data = current_app.config['OAUTH2_PROVIDERS'].get(provider)
@@ -101,7 +103,7 @@ def create_routes(app):
 
     @app.route('/callback/<provider>')
     def oauth2_callback(provider):
-        if current_user.is_authenticated:
+        if session.get("user"):
             return redirect(url_for('index')), 303
 
         provider_data = current_app.config['OAUTH2_PROVIDERS'].get(provider)
@@ -148,13 +150,9 @@ def create_routes(app):
         email_extractor = provider_data['userinfo']['email']
         email = email_extractor(response.json())
 
-        user = User.query.filter_by(email=email).first()
-        if user is None:
-            user = User(email=email)
-            db.session.add(user)
-            db.session.commit()
+        session.clear()
+        session['user'] = email
 
-        login_user(user)
         return redirect(url_for('index')), 303
 
     @app.errorhandler(401)

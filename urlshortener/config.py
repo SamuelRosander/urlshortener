@@ -1,8 +1,7 @@
 from os import environ
 
-SECRET_KEY = environ['SECRET_KEY']
-SQLALCHEMY_DATABASE_URI = environ['DATABASE_URI']
-SQLALCHEMY_TRACK_MODIFICATIONS = False
+SECRET_KEY = environ.get('SECRET_KEY', 'dev')
+MONGO_URI = environ['MONGO_URI']
 OAUTH2_PROVIDERS = {
     # Google OAuth 2.0 documentation:
     # https://developers.google.com/identity/protocols/oauth2/web-server#httprest

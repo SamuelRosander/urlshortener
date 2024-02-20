@@ -35,8 +35,8 @@
             {% block body %}{% endblock %}
             
             <footer>
-                {% if current_user.is_authenticated %}
-                    Signed in as {{ current_user.email }}<br />
+                {% if session.get("user") %}
+                    Signed in as {{ session["user"] }}<br />
                     <a href="{{ url_for('logout') }}">Sign out</a>
                 {% else %}
                     <a href="{{ url_for('oauth2_authorize', provider='google') }}">Sign in with Google</a>

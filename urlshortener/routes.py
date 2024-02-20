@@ -6,8 +6,7 @@ from urllib.parse import urlencode
 import requests
 from .forms import LinkForm
 from .models import User
-from .extensions import cosmos_db, db, generate_short_url
-import azure.cosmos.exceptions as exceptions
+from .extensions import mongo, db, generate_short_url
 from datetime import datetime
 
 
@@ -15,14 +14,9 @@ def create_routes(app):
     @app.route("/")
     def index():
         form = LinkForm()
+
         if current_user.is_authenticated:
-            links = list(cosmos_db["links"].read_all_items())
-            # links = list(cosmos_db["links"].query_items(
-            #     query="SELECT * FROM r WHERE r.user_id=@user_id",
-            #     parameters=[
-            #         {"name": "@user_id", "value": current_user.id}
-            #     ]
-            # ))
+            links = mongo.db.links.find({"user": current_user.email})
         else:
             links = None
 
@@ -33,16 +27,14 @@ def create_routes(app):
         form = LinkForm()
 
         if form.validate_on_submit():
-
             short_url = generate_short_url()
-            link = {"id": short_url, "long_url": form.long_url.data,
-                    "partitionKey": 1, "nr_of_clicks": 0,
-                    "timestamp": str(datetime.now)}
+            link = {"short_url": short_url, "long_url": form.long_url.data,
+                    "nr_of_clicks": 0, "timestamp": str(datetime.now())}
 
             if current_user.is_authenticated:
-                link["user_id"] = current_user.id
+                link["user"] = current_user.email
 
-            cosmos_db["links"].create_item(body=link)
+            mongo.db.links.insert_one(link)
 
         if current_user.is_authenticated:
             return redirect(url_for('index')), 303
@@ -51,14 +43,10 @@ def create_routes(app):
 
     @app.route("/<short_url>/info")
     def info(short_url):
-        try:
-            link = cosmos_db["links"].read_item(
-                item=short_url, partition_key=1)
-        except exceptions.CosmosResourceNotFoundError:
-            abort(404)
+        link = mongo.db.links.find_one_or_404({"short_url": short_url})
 
-        if link.get("user_id") and \
-                link.get("user_id") != current_user.get_id():
+        if link.get("user") and (current_user.is_anonymous or link.get("user")
+                                 != current_user.email):
             abort(401)
 
         form = LinkForm()
@@ -67,31 +55,19 @@ def create_routes(app):
 
     @app.route("/<short_url>")
     def redirect_url(short_url):
-        try:
-            link = cosmos_db["links"].read_item(
-                item=short_url, partition_key=1)
-            link["nr_of_clicks"] += 1
-            cosmos_db["links"].upsert_item(body=link)
-            return redirect(link["long_url"]), 303
-        except exceptions.CosmosResourceNotFoundError:
-            error_message = f"No URL was found for /{short_url}"
-            return render_template("error.html",
-                                   error_header="404 - not found",
-                                   error_message=error_message), 404
+        link = mongo.db.links.find_one_or_404({"short_url": short_url})
+
+        return redirect(link["long_url"]), 303
 
     @app.route("/delete/<short_url>")
     @login_required
     def delete_link(short_url):
-        try:
-            link = cosmos_db["links"].read_item(
-                item=short_url, partition_key=1)
-        except exceptions.CosmosResourceNotFoundError:
+        link = mongo.db.links.find_one_or_404({"short_url": short_url})
+
+        if link.get("user") != current_user.email:
             abort(401)
 
-        if link.get("user_id") != current_user.get_id():
-            abort(401)
-
-        cosmos_db["links"].delete_item(item=short_url, partition_key=1)
+        mongo.db.links.delete_one(link)
 
         flash("Link has been deleted.")
         return redirect(url_for("index")), 303

@@ -1,5 +1,5 @@
 from flask import Flask
-from .extensions import db, login_manager
+from .extensions import db, login_manager, mongo
 from .routes import create_routes
 
 
@@ -9,6 +9,7 @@ def create_app(config_file="config.py"):
 
     db.init_app(app)
     login_manager.init_app(app)
+    mongo.init_app(app)
 
     create_routes(app)
 

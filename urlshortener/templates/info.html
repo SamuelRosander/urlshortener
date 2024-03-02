@@ -1,13 +1,21 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<div class="long_url-label" title="{{ link.long_url }}">{{ link.long_url }}</div>
-<div class="short_url-container">
-    <div class="short_url-label" id="short_url-{{ link.id }}">
-        <a href="{{ url_for('redirect_url', short_url=link.short_url) }}" target="_blank">{{ request.host  + "/" + link.short_url }}</a>
+<div class="link-container">
+    <div class="link-infotext" title="{{ link.long_url }}">
+        {{ link.long_url }}
     </div>
-    <button onClick="copyURL({{ link.id }})">Copy</button>
-    <span class="label-clicks">This link has been used {{ link.no_of_clicks }} {{ "time" if link.no_of_clicks == 1 else "times" }}</span>
+    <div class="short_url-box">
+        <a href="{{ url_for('redirect_url', short_url=link.short_url) }}"
+            target="_blank" id="short_url-{{ link.short_url }}">
+            {{ request.host  + "/" + link.short_url }}</a>
+        <button onClick="copyURL('{{ link.short_url }}')" class="btn">
+            Copy</button>
+    </div>
+    <div class="link-infotext">
+        This link has been used {{ link.no_of_clicks }} 
+        {{ "time" if link.no_of_clicks == 1 else "times" }}
+    </div>
 </div>
 
 {% endblock %}

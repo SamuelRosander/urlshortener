@@ -2,9 +2,7 @@ name: Python tester
 
 on:
   push:
-    branches:
-      - master
-      - workflows
+
 
 jobs:
   lint:

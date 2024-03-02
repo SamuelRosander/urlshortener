@@ -15,7 +15,7 @@ def create_routes(app):
         form = LinkForm()
         if current_user.is_authenticated:
             links = Link.query.filter_by(user_id=current_user.id) \
-                                        .order_by(Link.id.desc())
+                .order_by(Link.id.desc())
         else:
             links = None
 
@@ -62,10 +62,7 @@ def create_routes(app):
             db.session.commit()
             return redirect(link.long_url), 303
         else:
-            error_message = f"No URL was found for /{short_url}"
-            return render_template("error.html",
-                                   error_header="404 - not found",
-                                   error_message=error_message), 404
+            abort(404)
 
     @app.route("/delete/<short_url>")
     @login_required
@@ -87,6 +84,7 @@ def create_routes(app):
     @app.route('/logout')
     def logout():
         logout_user()
+        flash('You have been logged out.', "message")
         return redirect(url_for('index')), 303
 
     @app.route("/authorize/<provider>")
@@ -167,14 +165,11 @@ def create_routes(app):
             db.session.commit()
 
         login_user(user)
+        flash(f"Logged in as {user.email}", "message")
         return redirect(url_for('index')), 303
 
     @app.errorhandler(401)
-    def error_401(error):
-        return render_template("error.html",
-                               error_header="401 - Unauthorized"), 401
-
     @app.errorhandler(404)
-    def error_404(error):
-        return render_template("error.html",
-                               error_header="404 - Not found"), 404
+    def error(error):
+        print(error)
+        return render_template("error.html", error=error), error.code

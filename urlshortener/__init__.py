@@ -3,9 +3,13 @@ from .extensions import mongo
 from .routes import create_routes
 
 
-def create_app(config_file="config.py"):
+def create_app(test_config=None):
     app = Flask(__name__)
-    app.config.from_pyfile(config_file)
+
+    if test_config:
+        app.config.from_mapping(test_config)
+    else:
+        app.config.from_pyfile("config.py")
 
     mongo.init_app(app)
 

@@ -9,8 +9,10 @@
         <a href="{{ url_for('redirect_url', short_url=link.short_url) }}"
             target="_blank" id="short_url-{{ link.short_url }}">
             {{ request.host  + "/" + link.short_url }}</a>
-        <button onClick="copyURL('{{ link.short_url }}')" class="btn">
-            Copy</button>
+            <button onClick="copyURL(this, '{{ link.short_url }}')" class="btn"
+            title="Copy to clipboard">
+        <i class='bx bx-copy'></i>
+    </button>
     </div>
     <div class="link-infotext">
         This link has been used {{ link.no_of_clicks }} 

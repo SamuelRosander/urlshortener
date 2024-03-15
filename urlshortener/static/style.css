@@ -145,10 +145,6 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--main-color);
 }
 
-.user-menu .bx {
-    display: none;
-}
-
 .wrapper {
     max-width: 800px;
     margin: 0 auto;
@@ -237,6 +233,10 @@ h1, h2, h3, h4, h5, h6 {
     transition: none;
 }
 
+.btn.clicked {
+    background: var(--flash-success-color);
+}
+
 .new_link-container {
     display: flex;
     gap: 5px;
@@ -259,6 +259,7 @@ h1, h2, h3, h4, h5, h6 {
 .link-infotext {
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 0.8em;
 }
 
@@ -273,6 +274,12 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--main-color);
 }
 
+.short_url-box a {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .link-delete {
     color: var(--text-color);
     font-size: 1.2rem;
@@ -285,4 +292,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .link-delete:hover {
     color: var(--text-color-delete);
+}
+
+
+@media (max-width: 767px) {
+    .user-menu a {
+        font-size: 1rem;
+    }
 }

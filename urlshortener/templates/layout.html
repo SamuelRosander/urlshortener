@@ -8,13 +8,6 @@
             href="{{ url_for('static', filename='style.css') }}">
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' 
             rel='stylesheet'>
-        <script>
-            function copyURL(short_url) {
-                var copyText = 
-                    document.getElementById("short_url-" + short_url);
-                navigator.clipboard.writeText(copyText.innerText);
-            }
-        </script>
     </head>
     <body>
         <header class="header">
@@ -35,13 +28,11 @@
                 <span>Logged in as {{ current_user.email }}</span>
                 <a href="{{ url_for('logout') }}">
                     Log out
-                    <i class='bx bx-log-out'></i>
                 </a>
                 {% else %}
                 <a href="{{ url_for('oauth2_authorize',
                         provider='google') }}">
                     Log in with Google
-                    <i class='bx bx-log-in'></i>
                 </a>
                 {% endif %}
             </div>

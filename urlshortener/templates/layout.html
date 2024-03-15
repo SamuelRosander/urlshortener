@@ -28,13 +28,11 @@
                 <span>Logged in as {{ current_user.email }}</span>
                 <a href="{{ url_for('logout') }}">
                     Log out
-                    <i class='bx bx-log-out'></i>
                 </a>
                 {% else %}
                 <a href="{{ url_for('oauth2_authorize',
                         provider='google') }}">
                     Log in with Google
-                    <i class='bx bx-log-in'></i>
                 </a>
                 {% endif %}
             </div>

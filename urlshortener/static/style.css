@@ -145,10 +145,6 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--main-color);
 }
 
-.user-menu .bx {
-    display: none;
-}
-
 .wrapper {
     max-width: 800px;
     margin: 0 auto;
@@ -296,4 +292,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .link-delete:hover {
     color: var(--text-color-delete);
+}
+
+
+@media (max-width: 767px) {
+    .user-menu a {
+        font-size: 1rem;
+    }
 }

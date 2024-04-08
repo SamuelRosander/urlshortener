@@ -12,7 +12,6 @@ A web app that shortens long URLs  with a randomized, 3-character code. Can be u
 - DATABASE_URI
 - GOOGLE_CLIENT_ID
 - GOOGLE_CLIENT_SECRET
-- HOST (optional)
 
 ---
 

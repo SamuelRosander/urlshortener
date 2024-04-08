@@ -24,3 +24,21 @@ document.onmouseup = function(e) {
 
     }
 }
+
+function copyURL(clickedButton, short_url) {
+    let allClickedButtons = document.getElementsByClassName("clicked")
+
+    for (var i=allClickedButtons.length-1; i>=0; i--) {
+        let icon = allClickedButtons[i].getElementsByClassName("bx-check")[0]
+        icon.classList.replace("bx-check", "bx-copy")
+        allClickedButtons[i].classList.remove("clicked")
+    }
+  
+    let activeIcon = clickedButton.getElementsByTagName("i")[0]
+    activeIcon.classList.replace("bx-copy", "bx-check")
+    clickedButton.classList.add("clicked")
+
+    let copyText = 
+        document.getElementById("short_url-" + short_url);
+    navigator.clipboard.writeText(copyText.innerText);
+}

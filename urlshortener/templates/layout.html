@@ -4,45 +4,64 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="utf-8">
         <title>URL Shortener</title>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-        <script>
-            function copyURL(short_url) {
-                var copyText = document.getElementById("short_url-" + short_url);
-                navigator.clipboard.writeText(copyText.innerText);
-            }
-        </script>
+        <link rel="stylesheet" type="text/css" 
+            href="{{ url_for('static', filename='style.css') }}">
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' 
+            rel='stylesheet'>
     </head>
     <body>
-        <div class="main-container">
-            <h1><a href="{{ url_for('index', _external=True) }}" class="banner-link">URL shortener</a></h1>
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="flash">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            <div class="new-link-container">
-                <form method="POST" action="{{ url_for('add') }}">
-                    {{ form.hidden_tag() }}
-                    {{ form.long_url(class="long_url-form", placeholder="Enter your URL...") }}
-                    {{ form.submit(class="submit-button") }}
-                </form>
-            </div>
-
-            {% block body %}{% endblock %}
-            
-            <footer>
-                {% if session.get("user") %}
-                    Signed in as {{ session["user"] }}<br />
-                    <a href="{{ url_for('logout') }}">Sign out</a>
+        <header class="header">
+            <div class="wrapper">
+                <a href="{{ url_for('index') }}" class="logo">URL shortener</a>
+                {% if current_user.is_authenticated %}
+                <i class='bx bx-user-check user-icon' id="user-icon"
+                    onClick="toggleUserMenu()"></i>
                 {% else %}
-                    <a href="{{ url_for('oauth2_authorize', provider='google') }}">Sign in with Google</a>
+                <i class='bx bx-user-x user-icon' id="user-icon"
+                    onClick="toggleUserMenu()"></i>
+            {% endif %}
+            </div>
+        </header>
+        <div class="wrapper">
+            <div class="user-menu" id="user-menu">
+                {% if session.get("user") %}
+                <span>Logged in as {{ session["user"] }}</span>
+                <a href="{{ url_for('logout') }}">
+                    Log out
+                </a>
+                {% else %}
+                <a href="{{ url_for('oauth2_authorize',
+                        provider='google') }}">
+                    Log in with Google
+                </a>
                 {% endif %}
-            </footer>
+            </div>
+            <div class="container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="flash {{ category }}">
+                            <span>
+                                {{ message | safe}}
+                            </span>
+                            <span class="flash-close" onClick="dismiss(this)">
+                                &times;
+                            </span>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form method="POST" action="{{ url_for('add') }}"
+                    class="new_link-container">
+                    {{ form.hidden_tag() }}
+                    {{ form.long_url(class="form", 
+                        placeholder="Enter your URL...") }}
+                    {{ form.submit(class="btn") }}
+                </form>
+                {% block body %}{% endblock %}
+            </div>
         </div>
+        <script src="{{url_for('static', filename='scripts.js')}}"></script>
     </body>
 </html>
 

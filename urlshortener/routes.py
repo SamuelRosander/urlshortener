@@ -77,6 +77,7 @@ def create_routes(app):
     @app.route('/logout')
     def logout():
         session.clear()
+        flash('You have been logged out.', "message")
         return redirect(url_for('index')), 303
 
     @app.route("/authorize/<provider>")
@@ -153,14 +154,11 @@ def create_routes(app):
         session.clear()
         session['user'] = email
 
+        flash(f"Logged in as {email}", "message")
         return redirect(url_for('index')), 303
 
     @app.errorhandler(401)
-    def error_401(error):
-        return render_template("error.html",
-                               error_header="401 - Unauthorized"), 401
-
     @app.errorhandler(404)
-    def error_404(error):
-        return render_template("error.html",
-                               error_header="404 - Not found"), 404
+    def error(error):
+        print(error)
+        return render_template("error.html", error=error), error.code

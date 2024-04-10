@@ -15,7 +15,7 @@
     </button>
     </div>
     <div class="link-infotext">
-        This link has been used {{ link.no_of_clicks }} 
+        This link has been used {{ link.no_of_clicks or 0 }} 
         {{ "time" if link.no_of_clicks == 1 else "times" }}
     </div>
 </div>

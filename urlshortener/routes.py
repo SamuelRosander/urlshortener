@@ -1,21 +1,20 @@
 from flask import render_template, url_for, redirect, request, current_app, \
     abort, session, flash
-from flask_login import current_user, logout_user, login_user, login_required
 import secrets
 from urllib.parse import urlencode
 import requests
 from .forms import LinkForm
-from .models import User, Link
-from .extensions import db
+from .extensions import mongo, generate_short_url, login_required
+from datetime import datetime
 
 
 def create_routes(app):
     @app.route("/")
     def index():
         form = LinkForm()
-        if current_user.is_authenticated:
-            links = Link.query.filter_by(user_id=current_user.id) \
-                .order_by(Link.id.desc())
+
+        if session.get("user"):
+            links = mongo.db.links.find({"user": session["user"]})
         else:
             links = None
 
@@ -26,27 +25,26 @@ def create_routes(app):
         form = LinkForm()
 
         if form.validate_on_submit():
-            if (current_user.is_authenticated):
-                link = Link(long_url=form.long_url.data,
-                            user_id=current_user.id)
-            else:
-                link = Link(long_url=form.long_url.data)
+            short_url = generate_short_url()
+            link = {
+                "short_url": short_url, "long_url": form.long_url.data,
+                "timestamp": str(datetime.now())}
 
-            db.session.add(link)
-            db.session.commit()
+            if session.get("user"):
+                link["user"] = session["user"]
 
-        if current_user.is_authenticated:
+            mongo.db.links.insert_one(link)
+
+        if session.get("user"):
             return redirect(url_for('index')), 303
 
-        return redirect(url_for('info', short_url=link.short_url)), 303
+        return redirect(url_for('info', short_url=short_url)), 303
 
     @app.route("/<short_url>/info")
     def info(short_url):
-        link = Link.query.filter_by(short_url=short_url).first()
+        link = mongo.db.links.find_one_or_404({"short_url": short_url})
 
-        if link is None:
-            abort(404)
-        elif link.owner and link.owner != current_user:
+        if link.get("user") and session.get("user") != link["user"]:
             abort(401)
 
         form = LinkForm()
@@ -55,41 +53,36 @@ def create_routes(app):
 
     @app.route("/<short_url>")
     def redirect_url(short_url):
-        link = Link.query.filter_by(short_url=short_url).first()
+        link = mongo.db.links.find_one_or_404({"short_url": short_url})
 
-        if link:
-            link.no_of_clicks += 1
-            db.session.commit()
-            return redirect(link.long_url), 303
-        else:
-            abort(404)
+        mongo.db.links.update_one(
+            {"_id": link["_id"]},
+            {"$set": {"nr_of_clicks": link.get("nr_of_clicks") or 0 + 1}})
+
+        return redirect(link["long_url"]), 303
 
     @app.route("/delete/<short_url>")
     @login_required
     def delete_link(short_url):
-        link = Link.query.filter_by(short_url=short_url).first()
+        link = mongo.db.links.find_one_or_404({"short_url": short_url})
 
-        if not link:
+        if link.get("user") != session["user"]:
             abort(401)
 
-        if link.owner != current_user:
-            abort(401)
-
-        db.session.delete(link)
-        db.session.commit()
+        mongo.db.links.delete_one(link)
 
         flash("Link has been deleted.")
         return redirect(url_for("index")), 303
 
     @app.route('/logout')
     def logout():
-        logout_user()
+        session.clear()
         flash('You have been logged out.', "message")
         return redirect(url_for('index')), 303
 
     @app.route("/authorize/<provider>")
     def oauth2_authorize(provider):
-        if current_user.is_authenticated:
+        if session.get("user"):
             return redirect(url_for('index')), 303
 
         provider_data = current_app.config['OAUTH2_PROVIDERS'].get(provider)
@@ -111,7 +104,7 @@ def create_routes(app):
 
     @app.route('/callback/<provider>')
     def oauth2_callback(provider):
-        if current_user.is_authenticated:
+        if session.get("user"):
             return redirect(url_for('index')), 303
 
         provider_data = current_app.config['OAUTH2_PROVIDERS'].get(provider)
@@ -158,14 +151,10 @@ def create_routes(app):
         email_extractor = provider_data['userinfo']['email']
         email = email_extractor(response.json())
 
-        user = User.query.filter_by(email=email).first()
-        if user is None:
-            user = User(email=email)
-            db.session.add(user)
-            db.session.commit()
+        session.clear()
+        session['user'] = email
 
-        login_user(user)
-        flash(f"Logged in as {user.email}", "message")
+        flash(f"Logged in as {email}", "message")
         return redirect(url_for('index')), 303
 
     @app.errorhandler(401)

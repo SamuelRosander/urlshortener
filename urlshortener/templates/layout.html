@@ -24,8 +24,8 @@
         </header>
         <div class="wrapper">
             <div class="user-menu" id="user-menu">
-                {% if current_user.is_authenticated %}
-                <span>Logged in as {{ current_user.email }}</span>
+                {% if session.get("user") %}
+                <span>Logged in as {{ session["user"] }}</span>
                 <a href="{{ url_for('logout') }}">
                     Log out
                 </a>
